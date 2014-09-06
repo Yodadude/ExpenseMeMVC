@@ -1,0 +1,15 @@
+App_Data/logs
+packages
+build
+bin
+obj
+*.suo
+*.nupkg
+*.user
+_ReSharper*
+TestResults
+connectionStrings.config
+appSettings.config
+mail.config
+rh.exe
+dev_*

@@ -1,0 +1,159 @@
+﻿@model ExpenseMeMVC.Models.ExpenseDetailsViewModel
+@{
+    ViewBag.Title = "ExpenseMe MVC";
+}
+
+<div class="container">
+    <div class="row">
+        <br />
+        <form class="form-horizontal" role="form">
+            <div class="well">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Transaction Date</label>
+                    <div class="col-sm-8" style="vertical-align:bottom">
+                        <span data-bind="text: TransactionDate"></span>
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <label class="control-label col-sm-4">Merchant Name</label>
+                    <div class="col-sm-8">
+                        <span data-bind="text: MerchantName"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Amount</label>
+                    <div class="col-sm-8">
+                        <span data-bind="text: Amount"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="well" data-bind="foreach: selectedLineItem">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Description</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" data-bind="value: description" name="description" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Expense Type</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" data-bind="value: expenseType" name="expenseType" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Tax Code</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" data-bind="value: taxCode" name="taxCode" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Amount</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" data-bind="value: amount" name="amount" />
+                    </div>
+                </div>
+                <div data-bind="foreach: glCodes">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" data-bind="text: description"></label>
+                        <div class="col-sm-4">
+                            <input class="form-control" data-bind="value: code" name="code" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br /><br />
+            <button class="btn" data-bind="click: load">Load Data</button>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        function getTransactionInfo() {
+            var data = {
+                transaction: {
+                    date: "01/01/2014",
+                    merchantName: "Qantas",
+                    amount: 515.95
+                },
+                lineItems: [{
+                    description: "Airfare SYD",
+                    expenseType: "TRAVEL AIR",
+                    taxCode: "GST",
+                    amount: 515.95,
+                    GlValues: [
+                        { segmentId: 1, code: "1000", description: "Company" },
+                        { segmentId: 2, code: "HR", description: "Cost Centre" },
+                        { segmentId: 3, code: "", description: "GL Account" },
+                        { segmentId: 4, code: "", description: "WBS Element" }
+                    ]
+                },
+                {
+                    description: "Airfare MEL",
+                    expenseType: "TRAVEL AIR",
+                    taxCode: "GST",
+                    amount: 525.95,
+                    GlValues: [
+                        { segmentId: 1, code: "1000", description: "Company" },
+                        { segmentId: 2, code: "HR", description: "Cost Centre" },
+                        { segmentId: 3, code: "", description: "GL Account" },
+                        { segmentId: 4, code: "", description: "WBS Element" }
+                    ]
+                }]
+            };
+
+            return data;
+        }
+
+        function LineItemViewModel(description, expenseType, taxCode, amount, glCodes) {
+            this.description = ko.observable(description);
+            this.expenseType = ko.observable(expenseType);
+            this.taxCode = ko.observable(taxCode);
+            this.amount = ko.observable(amount);
+            this.glCodes = ko.observableArray(glCodes);
+        }
+
+        function GlCodeViewModel(segmentId, code, description) {
+            this.segmentId = ko.observable(segmentId);
+            this.code = ko.observable(code);
+            this.description = ko.observable(description);
+        }
+
+        function ExpenseViewModel() {
+            var self = this;
+            self.TransactionDate = ko.observable();
+            self.MerchantName = ko.observable();
+            self.Amount = ko.observable();
+            self.LineItems = ko.observableArray();
+
+            self.selectedLineItem = ko.observable();
+
+            self.load = function () {
+                var data = getTransactionInfo();
+                self.TransactionDate(data.transaction.date);
+                self.MerchantName(data.transaction.merchantName);
+                self.Amount(data.transaction.amount);
+
+                data.lineItems.forEach(function (item) {
+
+                    var glCodes = item.GlValues.map(function (gl) {
+                        return new GlCodeViewModel(gl.segmentId, gl.code, gl.description);
+                    });
+
+                    self.LineItems.push(new LineItemViewModel(
+                        item.description,
+                        item.expenseType,
+                        item.taxCode,
+                        item.amount,
+                        glCodes));
+                });
+                self.selectedLineItem(self.LineItems()[0]);
+            };
+        }
+
+        var vm = new ExpenseViewModel();
+        ko.applyBindings(vm);
+        //vm.load();
+    </script>
+}
