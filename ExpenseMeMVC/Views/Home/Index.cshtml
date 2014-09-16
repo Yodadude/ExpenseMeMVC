@@ -31,32 +31,36 @@
             <div class="well" data-bind="with: selectedLineItem">
                 <div class="form-group">
                     <label class="control-label col-sm-4">Description</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input class="form-control" data-bind="value: description" name="description" />
+                    </div>
+                    <div class="btn-group col-sm-2" data-bind="visible: $parent.showLineItemPageNav()">
+                        <button type="button" class="btn glyphicon glyphicon-chevron-left"></button>
+                        <button type="button" class="btn glyphicon glyphicon-chevron-right"></button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-4">Expense Type</label>
-                    <div class="col-sm-8">
-                        <input class="form-control" data-bind="value: expenseType" name="expenseType" readonly="readonly" />
+                    <div class="col-sm-6">
+                        <input class="form-control" data-bind="value: expenseType, modalex: $parent.showExpenseTypeModal" name="expenseType" readonly="readonly" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-4">Tax Code</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input class="form-control" data-bind="value: taxCode, modalex: $parent.showTaxCodeModal" name="taxCode" readonly="readonly" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-4">Amount</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input class="form-control" data-bind="value: amount" name="amount" />
                     </div>
                 </div>
                 <div data-bind="foreach: glCodes">
                     <div class="form-group">
                         <label class="control-label col-sm-4" data-bind="text: description"></label>
-                        <div class="col-sm-8">
+                        <div class="col-sm-6">
                             <input class="form-control" data-bind="value: code" name="code" readonly="readonly" />
                         </div>
                     </div>
@@ -65,14 +69,14 @@
 
             <br /><br />
             <button class="btn" data-bind="click: load">Load Data</button>
-            <button class="btn" data-bind="click: next, visible: LineItems().length > 0">Next</button>
+            @*<button class="btn" data-bind="click: next, visible: LineItems().length > 0">Next</button>
             <button class="btn" data-bind="click: prev, visible: selectLineItemIndex() >= 0">Prev</button>
-            <button class="btn" data-toggle="modal" data-target="#taxCodeModal">Launch demo modal</button>
+            <button class="btn" data-toggle="modal" data-target="#taxCodeModal">Launch demo modal</button>*@
         </form>
     </div>
 </div>
 
-<div class="modal fade" id="taxCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="taxCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -81,7 +85,26 @@
             </div>
             <div class="modal-body">
                 <ul data-bind="foreach: taxCodes">
-                    <li data-bind="text: TaxCode"></li>
+                    <li data-bind="text: TaxCode, click: $parent.setTaxCodeSelected"></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="expenseTypeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Expense Types</h4>
+            </div>
+            <div class="modal-body">
+                <ul data-bind="foreach: expenseTypes">
+                    <li data-bind="text: ExpenseType, click: $parent.setExpenseTypeSelected"></li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -101,41 +124,6 @@
             $.ajax("/Home/GetExpenseDetailsViewModel", { async: false }).then(function (result) {
                 data = result;
             });
-
-            //var data = {
-            //    Transaction: {
-            //        TransactionDate: "01/01/2014",
-            //        MerchantName: "Qantas",
-            //        Amount: 515.95
-            //    },
-            //    lineItems: [{
-            //        Description: "Airfare SYD",
-            //        ExpenseType: "TRAVEL AIR",
-            //        TaxCode: "GST",
-            //        Amount: 515.95,
-            //        GlValues: [
-            //            { segmentId: 1, code: "1000", description: "Company" },
-            //            { segmentId: 2, code: "HR", description: "Cost Centre" },
-            //            { segmentId: 3, code: "", description: "GL Account" },
-            //            { segmentId: 4, code: "", description: "WBS Element" }
-            //        ]
-            //    },
-            //    {
-            //        description: "Airfare MEL",
-            //        expenseType: "TRAVEL AIR",
-            //        taxCode: "GST",
-            //        amount: 525.95,
-            //        GlValues: [
-            //            { segmentId: 1, code: "1000", description: "Company" },
-            //            { segmentId: 2, code: "HR", description: "Cost Centre" },
-            //            { segmentId: 3, code: "", description: "GL Account" },
-            //            { segmentId: 4, code: "", description: "WBS Element" }
-            //        ]
-            //    }],
-            //    taxCodes: [],
-            //    expenseTypes: [],
-            //    glCodes: []
-            //};
 
             return data;
         }
@@ -174,9 +162,8 @@
                 self.TransactionDate(model.Transaction.TransactionDate);
                 self.MerchantName(model.Transaction.MerchantName);
                 self.Amount(model.Transaction.Amount);
+                self.expenseTypes(model.ExpenseTypeDetails);
                 self.taxCodes(model.TaxCodeDetails);
-                //var self.taxCodes = JSON.parse(JSON.stringify(model.taxCodes));
-                //self.taxCodes.push.apply(self.taxCodes, model.taxCodes);
 
                 model.LineItems.forEach(function (item) {
 
@@ -212,9 +199,27 @@
                 self.selectLineItem();
             };
 
+            self.showLineItemPageNav = function () {
+                return self.LineItems().length > 1
+            };
+
+            self.showExpenseTypeModal = function () {
+                $('#expenseTypeModal').modal();
+            }
+
+            self.setExpenseTypeSelected = function () {
+                self.selectedLineItem().expenseType(this.ExpenseType);
+                $('#expenseTypeModal').modal("hide");
+            }
+
             self.showTaxCodeModal = function () {
                 console.log("clicked taxCode");
                 $('#taxCodeModal').modal();
+            }
+
+            self.setTaxCodeSelected = function () {
+                self.selectedLineItem().taxCode(this.TaxCode);
+                $('#taxCodeModal').modal("hide");
             }
         }
 
@@ -229,7 +234,7 @@
 
             var vm = new ExpenseViewModel();
             ko.applyBindings(vm);
-            //vm.load();
+            vm.load();
 
         });
 

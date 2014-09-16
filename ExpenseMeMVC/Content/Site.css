@@ -32,7 +32,14 @@ div.modal-body ul {
 div.modal-body ul li {
     background-color: whitesmoke;
     border: 1px solid silver;
-    margin-bottom: 3px;
-    padding: 4px 4px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    padding: 6px 6px;
     padding-left: 10px;
+    cursor: pointer;
+}
+
+div.modal-header {
+    background-color: dimgray;
+    color: white;
 }
