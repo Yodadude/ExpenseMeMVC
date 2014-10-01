@@ -61,7 +61,7 @@
                     <div class="form-group">
                         <label class="control-label col-sm-4" data-bind="text: description"></label>
                         <div class="col-sm-6">
-                            <input class="form-control" data-bind="value: code" name="code" readonly="readonly" />
+                            <input class="form-control" data-bind="value: code, modalex: $root.showGlCodeModal" name="code" readonly="readonly" />
                         </div>
                     </div>
                 </div>
@@ -75,6 +75,7 @@
         </form>
     </div>
 </div>
+
 
 <div class="modal" id="taxCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -109,6 +110,29 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="glCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">GL Search</h4>
+            </div>
+            <div class="modal-body">
+                <form class="navbar-form">
+                    <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+                    <input type="search" class="form-control pull-left" placeholder="Search">
+                </form>
+            <ul data-bind="foreach: expenseTypes">
+                <li data-bind="text: ExpenseType, click: $parent.setExpenseTypeSelected"></li>
+            </ul>
+        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -153,6 +177,7 @@
 
             self.selectLineItemIndex = ko.observable(-1);
             self.selectedLineItem = ko.observable();
+            self.selectedGlCode = ko.observable();
 
             self.expenseTypes = ko.observableArray();;
             self.taxCodes = ko.observableArray();
@@ -221,6 +246,13 @@
                 self.selectedLineItem().taxCode(this.TaxCode);
                 $('#taxCodeModal').modal("hide");
             }
+
+            self.showGlCodeModal = function (element, allBindings, viewModel) {
+                console.log("clicked glCode, segment="+viewModel.segmentId());
+                self.selectedGlCode(viewModel);
+                $('#glCodeModal h4').text(viewModel.description() + " GL Search");
+                $('#glCodeModal').modal();
+            }
         }
 
         $(function () {
@@ -228,7 +260,7 @@
             ko.bindingHandlers.modalex = {
                 init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                     var setupFunction = valueAccessor();
-                    $(element).on("click", function () { setupFunction(); });
+                    $(element).on("click", function () { setupFunction(element, allBindings, viewModel); });
                 }
             };
 
