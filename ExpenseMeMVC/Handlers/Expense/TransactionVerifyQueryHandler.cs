@@ -39,36 +39,6 @@ namespace ExpenseMeMVC.Handlers.Expense
                 TransactionCurrencyType = x.TransactionCurrencyType
             }).First();
 
-            //var transaction = list.First();
-
-            //model.CardType = transaction.CardType;
-            //model.ReferenceNumber = transaction.ReferenceNumber;
-            //model.TransactionDate = transaction.TransactionDate;
-            //model.Amount = transaction.Amount;
-            //model.MerchantName = transaction.MerchantName;
-            //model.CommitmentId = transaction.CommitmentId;
-            //model.Purpose = transaction.Purpose;
-            //model.ExpenseGroup = transaction.ExpenseGroup;
-            //model.TaxReceipt = transaction.TaxReceipt;
-
-            //foreach (var item in list)
-            //{
-            //    model.LineItems.Add(new TransactionLine
-            //    {
-            //        LineId = item.LineId,
-            //        Description = item.Description,
-            //        ExpenseType = item.ExpenseType,
-            //        Price = item.Price,
-            //        Quantity = item.Quantity,
-            //        CurrencyType = item.CurrencyType,
-            //        TaxCode = item.TaxCode,
-            //        NetAmount = item.NetAmount,
-            //        TaxAmount = item.TaxAmount,
-            //        GrossAmount = item.GrossAmount,
-            //        GlCodes = ConvertToGlCodeInfo(item.GlCodes, glSegmentDefinitions)
-            //    });
-            //}
-
             model.LineItems = list.Select(x => new LineItemDetails
             {
                 LineId = x.LineId,
@@ -85,9 +55,7 @@ namespace ExpenseMeMVC.Handlers.Expense
                 GlCodes = ConvertGlCodesToList(x.GlCodes)
             }).ToList();
 
-            model.ModelAsJson = JsonConvert.SerializeObject(model);
-
-            //ViewData["model"] = JsonConvert.SerializeObject(model);
+            //model.ModelAsJson = JsonConvert.SerializeObject(model);
 
             return model;
         }
@@ -119,18 +87,7 @@ namespace ExpenseMeMVC.Handlers.Expense
 
         private List<GlCodeDetails> ConvertGlCodesToList(string glCodes)
         {
-            //var codes = new List<GlCodeDetails>();
             var glCodesArray = glCodes.Split('\t');
-
-            //foreach (var item in segments)
-            //{
-            //    codes.Add(new GlCodeDetails
-            //    {
-            //        SegmentId = item.SegmentId,
-            //        Code = glCodes2[item.SegmentId - 1],
-            //        Name = item.Name
-            //    });
-            //};
 
             return GetGlSegmentDefinitions().Select(x => new GlCodeDetails
                 {
@@ -139,28 +96,7 @@ namespace ExpenseMeMVC.Handlers.Expense
                     Name = x.Name
                 }).ToList();
 
-            //return codes;
         }
-
-        //private List<GlCodeInfo> ConvertToGlCodeInfo(string glCodes, List<GlSegmentDefinition> glSegmentDefinitions)
-        //{
-        //    var list = new List<GlCodeInfo>();
-        //    var splitCodes = glCodes.Split('\t');
-        //    int i = 0;
-
-        //    foreach (var item in glSegmentDefinitions)
-        //    {
-        //        list.Add(new GlCodeInfo
-        //        {
-        //            Code = splitCodes[i],
-        //            Name = item.Name,
-        //            SegmentId = item.SegmentId
-        //        });
-        //        i++;
-        //    }
-
-        //    return list;
-        //}
     }
 
     public class TransactionVerifyQueryModel
@@ -199,32 +135,7 @@ namespace ExpenseMeMVC.Handlers.Expense
     {
         public TransactionDetails Transaction { get; set; }
         public List<LineItemDetails> LineItems { get; set; }
-        public string ModelAsJson { get; set; }
     }
-
-    //public class TransactionLine
-    //{
-    //    public int LineId { get; set; }
-    //    public string Description { get; set; }
-    //    public string ExpenseType { get; set; }
-    //    public string TaxCode { get; set; }
-    //    public decimal Price { get; set; }
-    //    public decimal Quantity { get; set; }
-    //    public string CurrencyType { get; set; }
-    //    public decimal ExchangeRate { get; set; }
-    //    public decimal NetAmount { get; set; }
-    //    public decimal TaxAmount { get; set; }
-    //    public decimal GrossAmount { get; set; }
-    //    public List<GlCodeInfo> GlCodes { get; set; }
-
-    //}
-
-    //public class GlCodeInfo
-    //{
-    //    public int SegmentId { get; set; }
-    //    public string Name { get; set; }
-    //    public string Code { get; set; }
-    //}
 
     public class GlSegmentDefinition
     {

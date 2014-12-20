@@ -54,15 +54,15 @@ function ExpenseViewModel() {
     self.load = function () {
         var model = getTransactionInfo();
 
-        self.transactionDate(model.Transaction.TransactionDate);
+        self.transactionDate(formatDateForDisplay(convertToDate(model.Transaction.TransactionDate)));
         self.merchantName(model.Transaction.MerchantName);
         self.amount(model.Transaction.Amount);
         self.purpose(model.Transaction.Purpose);
         self.expenseGroup(model.Transaction.ExpenseGroup);
         self.taxReceipt(model.Transaction.TaxReceipt);
 
-        self.expenseTypes(model.ExpenseTypeDetails);
-        self.taxCodes(model.TaxCodeDetails);
+        //self.expenseTypes(model.ExpenseTypeDetails);
+        //self.taxCodes(model.TaxCodeDetails);
 
         model.LineItems.forEach(function (item) {
 
@@ -171,6 +171,14 @@ function ExpenseViewModel() {
 
         return data;
     }
+
+    function convertToDate(date) {
+        return eval("new " + date.toString().slice(1, -1));
+    }
+
+    function formatDateForDisplay(date) {
+        return date.toLocaleDateString();
+    }
 }
 
 var expenseViewModel = new ExpenseViewModel();
@@ -185,9 +193,9 @@ $(function () {
         }
     };
 
+    expenseViewModel.load();
+
     ko.applyBindings(expenseViewModel, document.getElementById("content"));
     ko.applyBindings(expenseGroupsViewModel, document.getElementById("expenseGroupModal"));
-
-    expenseViewModel.load();
 
 });

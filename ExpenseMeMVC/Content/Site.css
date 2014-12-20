@@ -48,3 +48,7 @@ div.modal-header {
 .list-group-item:hover {
     background-color:azure;
 }
+
+.readonly {
+    padding-top: 5px;
+}

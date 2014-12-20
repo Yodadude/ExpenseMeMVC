@@ -7,20 +7,20 @@
             <div class="well">
                 <div class="form-group">
                     <label class="control-label col-sm-4">Transaction Date</label>
-                    <div class="col-sm-8" style="vertical-align:bottom">
-                        <span data-bind="text: transactionDate"></span>
+                    <div class="col-sm-8">
+                        <span class="checkbox" data-bind="text: transactionDate"></span>
                     </div>
                 </div>
                 <div class="form-group ">
                     <label class="control-label col-sm-4">Merchant Name</label>
                     <div class="col-sm-8">
-                        <span data-bind="text: merchantName"></span>
+                        <span class="checkbox" data-bind="text: merchantName"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-4">Amount</label>
                     <div class="col-sm-8">
-                        <span data-bind="text: amount"></span>
+                        <span class="checkbox" data-bind="text: amount"></span>
                     </div>
                 </div>
             </div>
@@ -177,7 +177,7 @@
 
 @section scripts {
     <script>
-        var model = JSON.parse(JSON.stringify(@Html.Raw(Model.ModelAsJson)));
+        var model = JSON.parse(JSON.stringify(@Html.Raw(Json.Encode(Model))));
     </script>
     <script type="text/javascript" src="~/Scripts/Views/Expense/Expense.js"></script>
 }
