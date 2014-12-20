@@ -1,274 +1,37 @@
-﻿@model ExpenseMeMVC.Models.ExpenseDetailsViewModel
-@{
-    ViewBag.Title = "ExpenseMe MVC";
-}
+﻿@model ExpenseMeMVC.Handlers.Home.BadgersViewModel
 
-<div class="container">
-    <div class="row">
-        <br />
-        <form class="form-horizontal" role="form">
-            <div class="well">
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Transaction Date</label>
-                    <div class="col-sm-8" style="vertical-align:bottom">
-                        <span data-bind="text: TransactionDate"></span>
-                    </div>
-                </div>
-                <div class="form-group ">
-                    <label class="control-label col-sm-4">Merchant Name</label>
-                    <div class="col-sm-8">
-                        <span data-bind="text: MerchantName"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Amount</label>
-                    <div class="col-sm-8">
-                        <span data-bind="text: Amount"></span>
-                    </div>
-                </div>
-            </div>
+<div class="row">
+    <ul class="nav nav-pills">
+        <li role="presentation" class="list-group-item  col-md-offset-2">
+            <a href="approvals/list">
+                <span class="glyphicon glyphicon-ok col-md-1" aria-hidden="true"></span>
+                <span class="">&nbsp;Approvals</span>&nbsp;
+                <span class="badge">@Model.ApprovalCount</span>
+                <span class=""></span>
+            </a>
+        </li>
+        <li role="presentation" class="list-group-item">
+            <a href="expense/transactions">
+                <span class="glyphicon glyphicon-tasks col-md-1" aria-hidden="true"></span>
+                <span class="">&nbsp;Transactions</span>&nbsp;
+                <span class="badge">@Model.TransactionCount</span>
+                <span class=""></span>
+            </a>
+        </li>
+        <li role="presentation" class="list-group-item">
+            <a href="expense/addaclaim">
+                <span class="glyphicon glyphicon-plus-sign col-md-1" aria-hidden="true"></span>
+                <span class="">&nbsp;Add a Claim</span>
+                <span class=""></span>
+            </a>
+        </li>
+        <li role="presentation" class="list-group-item">
+            <a href="expense/capture">
+                <span class="glyphicon glyphicon-camera col-md-1" aria-hidden="true"></span>
+                <span class="">&nbsp;Capture Receipt</span>
+                <span class=""></span>
+            </a>
+        </li>
+    </ul>
 
-            <div class="well" data-bind="with: selectedLineItem">
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Description</label>
-                    <div class="col-sm-6">
-                        <input class="form-control" data-bind="value: description" name="description" />
-                    </div>
-                    <div class="btn-group col-sm-2" data-bind="visible: $parent.showLineItemPageNav()">
-                        <button type="button" class="btn glyphicon glyphicon-chevron-left"></button>
-                        <button type="button" class="btn glyphicon glyphicon-chevron-right"></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Expense Type</label>
-                    <div class="col-sm-6">
-                        <input class="form-control" data-bind="value: expenseType, modalex: $parent.showExpenseTypeModal" name="expenseType" readonly="readonly" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Tax Code</label>
-                    <div class="col-sm-6">
-                        <input class="form-control" data-bind="value: taxCode, modalex: $parent.showTaxCodeModal" name="taxCode" readonly="readonly" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Amount</label>
-                    <div class="col-sm-6">
-                        <input class="form-control" data-bind="value: amount" name="amount" />
-                    </div>
-                </div>
-                <div data-bind="foreach: glCodes">
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" data-bind="text: description"></label>
-                        <div class="col-sm-6">
-                            <input class="form-control" data-bind="value: code, modalex: $root.showGlCodeModal" name="code" readonly="readonly" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <br /><br />
-            <button class="btn" data-bind="click: load">Load Data</button>
-            @*<button class="btn" data-bind="click: next, visible: LineItems().length > 0">Next</button>
-            <button class="btn" data-bind="click: prev, visible: selectLineItemIndex() >= 0">Prev</button>
-            <button class="btn" data-toggle="modal" data-target="#taxCodeModal">Launch demo modal</button>*@
-        </form>
-    </div>
 </div>
-
-
-<div class="modal" id="taxCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">Tax Codes</h4>
-            </div>
-            <div class="modal-body">
-                <ul data-bind="foreach: taxCodes">
-                    <li data-bind="text: TaxCode, click: $parent.setTaxCodeSelected"></li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="expenseTypeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">Expense Types</h4>
-            </div>
-            <div class="modal-body">
-                <ul data-bind="foreach: expenseTypes">
-                    <li data-bind="text: ExpenseType, click: $parent.setExpenseTypeSelected"></li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="glCodeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">GL Search</h4>
-            </div>
-            <div class="modal-body">
-                <form class="navbar-form">
-                    <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
-                    <input type="search" class="form-control pull-left" placeholder="Search">
-                </form>
-            <ul data-bind="foreach: expenseTypes">
-                <li data-bind="text: ExpenseType, click: $parent.setExpenseTypeSelected"></li>
-            </ul>
-        </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section scripts {
-    <script type="text/javascript">
-
-        function getTransactionInfo() {
-
-            var data = {};
-
-            $.ajax("/Home/GetExpenseDetailsViewModel", { async: false }).then(function (result) {
-                data = result;
-            });
-
-            return data;
-        }
-
-        function LineItemViewModel(description, expenseType, taxCode, amount, glCodes) {
-            this.description = ko.observable(description);
-            this.expenseType = ko.observable(expenseType);
-            this.taxCode = ko.observable(taxCode);
-            this.amount = ko.observable(amount);
-            this.glCodes = ko.observableArray(glCodes);
-        }
-
-        function GlCodeViewModel(segmentId, code, description) {
-            this.segmentId = ko.observable(segmentId);
-            this.code = ko.observable(code);
-            this.description = ko.observable(description);
-        }
-
-        function ExpenseViewModel() {
-            var self = this;
-
-            self.TransactionDate = ko.observable();
-            self.MerchantName = ko.observable();
-            self.Amount = ko.observable();
-            self.Purpose = ko.observable("");
-            self.LineItems = ko.observableArray();
-
-            self.selectLineItemIndex = ko.observable(-1);
-            self.selectedLineItem = ko.observable();
-            self.selectedGlCode = ko.observable();
-
-            self.expenseTypes = ko.observableArray();;
-            self.taxCodes = ko.observableArray();
-
-            self.load = function () {
-                var model = getTransactionInfo();
-                self.TransactionDate(model.Transaction.TransactionDate);
-                self.MerchantName(model.Transaction.MerchantName);
-                self.Amount(model.Transaction.Amount);
-                self.expenseTypes(model.ExpenseTypeDetails);
-                self.taxCodes(model.TaxCodeDetails);
-
-                model.LineItems.forEach(function (item) {
-
-                    var glCodes = item.GlCodes.map(function (gl) {
-                        return new GlCodeViewModel(gl.SegmentId, gl.Code, gl.Name);
-                    });
-
-                    self.LineItems.push(new LineItemViewModel(
-                        item.Description,
-                        item.ExpenseType,
-                        item.TaxCode,
-                        item.Price,
-                        glCodes));
-                });
-                
-                //self.selectLineItemIndex(0);
-                //self.selectLineItem();
-                self.selectedLineItem(self.LineItems()[0]);
-            };
-
-            self.selectLineItem = function () {
-                self.selectedLineItem(self.LineItems()[self.selectLineItemIndex()]);
-            }
-
-            self.next = function () {
-                self.selectedLineItem(self.LineItems()[1]);
-                //self.selectLineItemIndex(self.selectLineItemIndex() + 1);
-                //self.selectLineItem();
-            };
-
-            self.prev = function () {
-                self.selectLineItemIndex(self.selectLineItemIndex() - 1);
-                self.selectLineItem();
-            };
-
-            self.showLineItemPageNav = function () {
-                return self.LineItems().length > 1
-            };
-
-            self.showExpenseTypeModal = function () {
-                $('#expenseTypeModal').modal();
-            }
-
-            self.setExpenseTypeSelected = function () {
-                self.selectedLineItem().expenseType(this.ExpenseType);
-                $('#expenseTypeModal').modal("hide");
-            }
-
-            self.showTaxCodeModal = function () {
-                console.log("clicked taxCode");
-                $('#taxCodeModal').modal();
-            }
-
-            self.setTaxCodeSelected = function () {
-                self.selectedLineItem().taxCode(this.TaxCode);
-                $('#taxCodeModal').modal("hide");
-            }
-
-            self.showGlCodeModal = function (element, allBindings, viewModel) {
-                console.log("clicked glCode, segment="+viewModel.segmentId());
-                self.selectedGlCode(viewModel);
-                $('#glCodeModal h4').text(viewModel.description() + " GL Search");
-                $('#glCodeModal').modal();
-            }
-        }
-
-        $(function () {
-
-            ko.bindingHandlers.modalex = {
-                init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    var setupFunction = valueAccessor();
-                    $(element).on("click", function () { setupFunction(element, allBindings, viewModel); });
-                }
-            };
-
-            var vm = new ExpenseViewModel();
-            ko.applyBindings(vm);
-            vm.load();
-
-        });
-
-    </script>
-}

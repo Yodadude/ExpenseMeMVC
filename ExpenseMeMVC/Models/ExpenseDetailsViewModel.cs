@@ -19,9 +19,15 @@ namespace ExpenseMeMVC.Models
     {
         public int CardType { get; set; }
         public string ReferenceNumber { get; set; }
-        public string TransactionDate { get; set; }
+        public string TransactionId { get; set; }
+        public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
         public string MerchantName { get; set; }
+        public string Purpose { get; set; }
+        public string ExpenseGroup { get; set; }
+        public bool TaxReceipt { get; set; }
+        public decimal ForeignAmount { get; set; }
+        public string TransactionCurrencyType { get; set; }
     }
 
     public class LineItemDetails
@@ -34,7 +40,6 @@ namespace ExpenseMeMVC.Models
         public decimal Quantity { get; set; }
         public string CurrencyType { get; set; }
         public decimal ExchangeRate { get; set; }
-        public bool TaxReceipt { get; set; }
         public decimal NetAmount { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal GrossAmount { get; set; }

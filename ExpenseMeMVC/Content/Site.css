@@ -5,6 +5,7 @@
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
+    padding-top: 15px;
     padding-left: 15px;
     padding-right: 15px;
 }
@@ -42,4 +43,8 @@ div.modal-body ul li {
 div.modal-header {
     background-color: dimgray;
     color: white;
+}
+
+.list-group-item:hover {
+    background-color:azure;
 }

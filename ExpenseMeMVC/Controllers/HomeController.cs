@@ -6,27 +6,36 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Newtonsoft;
+using ExpenseMeMVC.Handlers.Home;
 
 namespace ExpenseMeMVC.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private Database database;
 
-        public HomeController()
+        public ActionResult Index(BadgersQueryModel query)
         {
-            database = new Database(@"Server=(local)\sqlexpress;Database=pm99_mivision;User Id=promasterweb; Password=changeoninstall;", DatabaseType.SqlServer2012);
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("logon", "account");
+            }
+
+            var viewModel = Command.Invoke<BadgersQueryModel, BadgersViewModel>(query);
+
+            return View(viewModel);
         }
 
-        public ActionResult Index()
+        public ActionResult Badges(BadgersQueryModel query)
         {
-            return View(new ExpenseDetailsViewModel());
+            var viewModel = Command.Invoke<BadgersQueryModel, BadgersViewModel>(query);
+            return View(viewModel);
         }
 
         [HttpGet]
         public ActionResult GetExpenseDetailsViewModel()
         {
-            var info = GetTransactionAndLineItemDetails("Visa0000000000006109");
+            //var info = GetTransactionAndLineItemDetails("Visa0000000000006109");
+            var info = GetTransactionAndLineItemDetails("MasterCard0000027318");
 
             var vm = new ExpenseDetailsViewModel();
 
@@ -38,9 +47,12 @@ namespace ExpenseMeMVC.Controllers
             {
                 CardType = x.CardType,
                 ReferenceNumber = x.ReferenceNumber,
-                TransactionDate = x.TransactionDate.ToShortDateString(),
+                TransactionDate = x.TransactionDate,
                 MerchantName = x.MerchantName,
-                Amount = x.Amount
+                Amount = x.Amount,
+                Purpose = x.Purpose,
+                ExpenseGroup = x.ExpenseGroup,
+                TaxReceipt = x.TaxReceipt.Equals("Y")
             }).First();
 
             vm.LineItems = info.Select(x => new LineItemDetails
@@ -60,7 +72,42 @@ namespace ExpenseMeMVC.Controllers
             }).ToList();
 
 
+            vm.LineItems.Add(new LineItemDetails
+            {
+                Description = "Line 2",
+                ExpenseType = "",
+                TaxCode = "GST",
+                NetAmount = 10.00m,
+                TaxAmount = 0,
+                GrossAmount = 10.00m,
+                Price = 10.00m,
+                Quantity = 1,
+                CurrencyType = "AUD",
+                ExchangeRate = 1.0000m,
+                GlCodes = vm.LineItems.First().GlCodes.ToList()
+            });
+
             return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GlSearch(GlSearchQueryModel query)
+        {
+            var sql = @"select code as Code, description as Descrption from gl_segment_codes where segment_id = @0 order by description";
+
+            var list = DataContext.Fetch<GlSearchResult>(sql, query.SegmentId).ToList();
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult UserExpenseGroups(UserExpenseGroupsQueryModel query)
+        {
+            var sql = @"select expense_group_name as ExpenseGroup, description as Descrption from user_expense_groups where user_name = @0 and active_flag = 'Y' order by 1";
+
+            var list = DataContext.Fetch<UserExpenseGroupsResult>(sql, "SJACK").ToList();
+
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult About()
@@ -100,14 +147,14 @@ namespace ExpenseMeMVC.Controllers
             var sql = @"select expense_type as ExpenseType, description, gl_code as GlCodes from expense_types 
                         where exists (select 1 from account_expense_types a where a.card_type = @0 and a.expense_type = expense_types. expense_type)";
 
-            return database.Fetch<ExpenseTypeDetails>(sql, cardType).ToList();
+            return DataContext.Fetch<ExpenseTypeDetails>(sql, cardType).ToList();
         }
 
         private List<TaxCodeDetails> GetTaxCodeDetals()
         {
             var sql = @"select tax_code as TaxCode, description, tax_percentage as TaxPercentage, tax_inclusive as TaxInclusive from tax_codes where card_type = 0";
 
-            return database.Fetch<TaxCodeDetails>(sql).ToList();
+            return DataContext.Fetch<TaxCodeDetails>(sql).ToList();
         }
 
         private List<GlCodeDetails> GetGlCodeDetals()
@@ -115,21 +162,23 @@ namespace ExpenseMeMVC.Controllers
             var sql = @"select segment_id as SegmentId, name as Name, char_limit as MaxLength, width as Width, validation_type as ValidationType 
                           from gl_segment_defn where gl_type = (select gl_type from gl_type where status = 'active')";
 
-            return database.Fetch<GlCodeDetails>(sql).ToList();
+            return DataContext.Fetch<GlCodeDetails>(sql).ToList();
         }
 
         private List<TransactionLineItemsQueryResult> GetTransactionAndLineItemDetails(string referenceNumber)
         {
             var sql = @"select d.card_type as CardType, d.reference_number as ReferenceNumber, 
                                 d.effective_transaction_date as TransactionDate, d.amount, d.merchant_name as MerchantName, 
+                                cl.commit_description as purpose, cl.expense_group_name as expenseGroup, cl.tax_receipt as taxReceipt,
                                 g.gl_code as GlCodes, g.tax_code as TaxCode, g.expense_type as ExpenseType,
                                 g.price, g.quantity, g.currency_type as CurrencyType, g.exchange_rate as ExchangeRate, 
                                 g.net_amount as NetAmount , g.tax_amount as TaxAmount, g.amount as GrossAmount, g.fbt_id as LineId
                         from statement_data d
                         inner join statement_gl_line g on g.card_type = d.card_type and g.reference_number = d.reference_number
+                        left outer join commitment_log cl on cl.commitment_id = d.commitment_id
                          where d.reference_number = @0";
 
-            return database.Fetch<TransactionLineItemsQueryResult>(sql, referenceNumber).ToList();
+            return DataContext.Fetch<TransactionLineItemsQueryResult>(sql, referenceNumber).ToList();
         }
 
         private class TransactionLineItemsQueryResult
@@ -139,6 +188,9 @@ namespace ExpenseMeMVC.Controllers
             public DateTime TransactionDate { get; set; }
             public decimal Amount { get; set; }
             public string MerchantName { get; set; }
+            public string Purpose { get; set; }
+            public string ExpenseGroup { get; set; }
+            public string TaxReceipt { get; set; }
             public int LineId { get; set; }
             public string Description { get; set; }
             public string ExpenseType { get; set; }
@@ -147,7 +199,6 @@ namespace ExpenseMeMVC.Controllers
             public decimal Quantity { get; set; }
             public string CurrencyType { get; set; }
             public decimal ExchangeRate { get; set; }
-            public bool TaxReceipt { get; set; }
             public decimal NetAmount { get; set; }
             public decimal TaxAmount { get; set; }
             public decimal GrossAmount { get; set; }

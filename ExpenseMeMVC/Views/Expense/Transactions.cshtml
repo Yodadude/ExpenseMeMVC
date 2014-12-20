@@ -1,0 +1,21 @@
+﻿@model ExpenseMeMVC.Handlers.Expense.TransactionsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="list-group">
+    @foreach (var item in Model.List)
+    {
+        <div class="list-group-item">
+            <a href="@Url.Action("verify", "expense", new { transactionId = item.TransactionId })">
+                <h4 class="list-group-item-heading">@item.MerchantName</h4>
+                <div class="list-group-item-text">
+                    <span class="pull-left">@item.TransactionDate</span>
+                    <span class="pull-right">@item.Amount</span>
+                </div>
+                <br class="clearfix" />
+            </a>
+        </div>
+    }
+</div>
