@@ -4,6 +4,7 @@
 function ExpenseGroupsModel() {
 
     var self = this;
+    var notifyCallback = null;
 
     self.expenseGroups = ko.observableArray([]);
 
@@ -14,6 +15,26 @@ function ExpenseGroupsModel() {
                 self.expenseGroups(result);
             });
     }
+
+    self.expenseGroupSelected = function (data) {
+        // try calling exec notifyCallback passing selected items
+        if (notifyCallback) {
+            notifyCallback({ expenseGroup: data.ExpenseGroup, description: data.Description });
+        }
+        self.hideModal();
+    };
+
+    self.showModal = function (callback) {
+        if (callback) {
+            notifyCallback = callback;
+        }
+        var data = self.getUserExpenseGroups();
+        $('#expenseGroupModal').modal();
+    };
+
+    self.hideModal = function () {
+        $('#expenseGroupModal').modal("hide");
+    };
 
     return self;
 }
@@ -48,8 +69,13 @@ function ExpenseViewModel() {
     self.selectedLineItem = ko.observable();
     self.selectedGlCode = ko.observable();
 
-    self.expenseTypes = ko.observableArray();
-    self.taxCodes = ko.observableArray();
+    self.split = function () {
+        alert("Hello split");
+    };
+
+    self.capture = function () {
+        alert("Hello capture");
+    };
 
     self.load = function () {
         var model = getTransactionInfo();
@@ -60,9 +86,6 @@ function ExpenseViewModel() {
         self.purpose(model.Transaction.Purpose);
         self.expenseGroup(model.Transaction.ExpenseGroup);
         self.taxReceipt(model.Transaction.TaxReceipt);
-
-        //self.expenseTypes(model.ExpenseTypeDetails);
-        //self.taxCodes(model.TaxCodeDetails);
 
         model.LineItems.forEach(function (item) {
 
@@ -112,8 +135,12 @@ function ExpenseViewModel() {
     };
 
     self.showExpenseGroupModal = function () {
-        var data = getUserExpenseGroups();
-        $('#expenseGroupModal').modal();
+        expenseGroupsViewModel.showModal(self.updateExpenseGroup);
+    };
+
+    self.updateExpenseGroup = function (data) {
+        self.expenseGroup(data.expenseGroup);
+        self.purpose(data.description || "");
     };
 
     self.showExpenseTypeModal = function () {
@@ -159,17 +186,7 @@ function ExpenseViewModel() {
     }
 
     function getTransactionInfo() {
-
         return model;
-        var data = {};
-
-        $.ajax("/Home/GetExpenseDetailsViewModel",
-            { async: false })
-            .then(function (result) {
-                data = result;
-            });
-
-        return data;
     }
 
     function convertToDate(date) {
@@ -188,8 +205,8 @@ $(function () {
 
     ko.bindingHandlers.modalex = {
         init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-            var setupFunction = valueAccessor();
-            $(element).on("click", function () { setupFunction(element, allBindings, viewModel); });
+            var accessor = valueAccessor();
+            $(element).on("click", function () { accessor.onOpen(element, allBindings, viewModel); });
         }
     };
 
