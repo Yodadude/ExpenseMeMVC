@@ -2,9 +2,12 @@ using NPoco;
 using StructureMap;
 using ExpenseMeMVC.Infrastructure;
 
-namespace ExpenseMeMVC {
-    public static class IoC {
-        public static IContainer Initialize() {
+namespace ExpenseMeMVC
+{
+    public static class IoC
+    {
+        public static IContainer Initialize()
+        {
             ObjectFactory.Initialize(x =>
                         {
                             x.Scan(scan =>
@@ -19,7 +22,8 @@ namespace ExpenseMeMVC {
                                 var factory = sm.GetInstance<IDatabaseFactory>();
                                 return factory.Create();
                             });
-            //                x.For<IExample>().Use<Example>();
+                            x.For<ISessionState>().HttpContextScoped().Use<SessionState>();
+                            //                x.For<IExample>().Use<Example>();
 
                         });
             return ObjectFactory.Container;

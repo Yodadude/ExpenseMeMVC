@@ -139,6 +139,7 @@
     <Compile Include="Handlers\Home\BadgersViewModel.cs" />
     <Compile Include="Infrastructure\CommandInvoker.cs" />
     <Compile Include="Infrastructure\DatabaseFactory.cs" />
+    <Compile Include="Infrastructure\SessionState.cs" />
     <Compile Include="Models\ExpenseDetailsViewModel.cs" />
     <Compile Include="Models\GlSearchResult.cs" />
     <Compile Include="Models\UserExpenseGroupsQueryModel.cs" />

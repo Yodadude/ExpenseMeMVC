@@ -30,6 +30,7 @@ namespace ExpenseMeMVC.Controllers
             return View();
         }
 
+        [Authorize]
         public ActionResult Verify(TransactionVerifyQueryModel query)
         {
             var viewModel = Command.Invoke<TransactionVerifyQueryModel, TransactionVerifyViewModel>(query);

@@ -11,10 +11,12 @@ namespace ExpenseMeMVC.Handlers.Expense
     public class TransactionsQueryHandler : ICommandHandler<TransactionsQueryModel, TransactionsViewModel>
     {
         private IDatabase _database;
+        private ISessionState _sessionState;
 
-        public TransactionsQueryHandler(IDatabase database)
+        public TransactionsQueryHandler(IDatabase database, ISessionState sessionState)
         {
             _database = database;
+            _sessionState = sessionState;
         }
 
         public TransactionsViewModel Handle(TransactionsQueryModel input)
@@ -26,7 +28,7 @@ namespace ExpenseMeMVC.Handlers.Expense
             where sd.owner_user_name = @0
               and wi.activity_id = 3";
 
-            var list = _database.Fetch<TransactionDetails>(sql, "SJACK");
+            var list = _database.Fetch<TransactionDetails>(sql, _sessionState.UserName);
 
             return new TransactionsViewModel { List = list };
         }
@@ -42,18 +44,4 @@ namespace ExpenseMeMVC.Handlers.Expense
         public List<TransactionDetails> List { get; set; }
     }
 
-    //public class TransactionDetails
-    //{
-    //    public int CardType { get; set; }
-    //    public string ReferenceNumber { get; set; }
-    //    public string TransactionId { get; set; }
-    //    public DateTime TransactionDate { get; set; }
-    //    public string MerchantName { get; set; }
-    //    public decimal Amount { get; set; }
-    //    public decimal ForeignAmount { get; set; }
-    //    public string TransactionCurrencyType { get; set; }
-    //    public string ExpenseGroup { get; set; }
-    //    public string Purpose { get; set; }
-    //    public bool TaxReceipt { get; set; }
-    //}
 }

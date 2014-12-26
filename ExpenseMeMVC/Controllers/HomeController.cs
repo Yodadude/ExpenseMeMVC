@@ -7,11 +7,18 @@ using System.Web;
 using System.Web.Mvc;
 using Newtonsoft;
 using ExpenseMeMVC.Handlers.Home;
+using ExpenseMeMVC.Infrastructure;
 
 namespace ExpenseMeMVC.Controllers
 {
     public class HomeController : BaseController
     {
+        private ISessionState _sessionState;
+
+        public HomeController(ISessionState sessionState)
+        {
+            _sessionState = sessionState;
+        }
 
         public ActionResult Index(BadgersQueryModel query)
         {
@@ -105,7 +112,7 @@ namespace ExpenseMeMVC.Controllers
         {
             var sql = @"select expense_group_name as ExpenseGroup, description as Descrption from user_expense_groups where user_name = @0 and active_flag = 'Y' order by 1";
 
-            var list = DataContext.Fetch<UserExpenseGroupsResult>(sql, "SJACK").ToList();
+            var list = DataContext.Fetch<UserExpenseGroupsResult>(sql, _sessionState.UserName).ToList();
 
             return Json(list, JsonRequestBehavior.AllowGet);
         }

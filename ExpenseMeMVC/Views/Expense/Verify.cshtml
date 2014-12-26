@@ -175,7 +175,7 @@
 
 @section scripts {
     <script>
-        var model = JSON.parse(JSON.stringify(@Html.Raw(Json.Encode(Model))));
+        var model = @Html.Raw(Json.Encode(Model));
     </script>
     <script type="text/javascript" src="~/Scripts/Views/Expense/Expense.js"></script>
 }

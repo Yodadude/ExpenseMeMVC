@@ -10,10 +10,12 @@ namespace ExpenseMeMVC.Handlers.Home
     public class BadgersQueryHandler : ICommandHandler<BadgersQueryModel, BadgersViewModel>
     {
         private IDatabase _database;
+        private ISessionState _sessionState;
 
-        public BadgersQueryHandler(IDatabase database)
+        public BadgersQueryHandler(IDatabase database, ISessionState sessionState)
         {
             _database = database;
+            _sessionState = sessionState;
         }
 
         public BadgersViewModel Handle(BadgersQueryModel input)
@@ -24,7 +26,7 @@ namespace ExpenseMeMVC.Handlers.Home
             where sd.owner_user_name = @0
               and wi.activity_id = 3";
 
-            var transactionCount = _database.Single<int>(sql, "SJACK");
+            var transactionCount = _database.Single<int>(sql, _sessionState.UserName);
 
             sql = @"
             select count(*) from wf_instance_status wi
@@ -33,7 +35,7 @@ namespace ExpenseMeMVC.Handlers.Home
             and sa.user_name = @0
             and wi.object_type in ('T')";
 
-            var approvalCount = _database.Single<int>(sql, "SJACK");
+            var approvalCount = _database.Single<int>(sql, _sessionState.UserName);
 
             return new BadgersViewModel
             { 

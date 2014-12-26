@@ -24,7 +24,7 @@ namespace ExpenseMeMVC.Controllers
                 return Logon();
             } 
 
-            FormsAuthentication.SetAuthCookie(userId, true);
+            FormsAuthentication.SetAuthCookie(userId.ToUpper(), true);
 
             return RedirectToAction("index","home");
         }

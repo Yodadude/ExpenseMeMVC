@@ -4,11 +4,11 @@
 function ExpenseGroupsModel() {
 
     var self = this;
-    var notifyCallback = null;
+    var doModal = null;
 
     self.expenseGroups = ko.observableArray([]);
 
-    self.getUserExpenseGroups = function getUserExpenseGroups() {
+    self.getUserExpenseGroups = function() {
         $.ajax("/Home/UserExpenseGroups",
             { async: false })
             .then(function (result) {
@@ -17,18 +17,17 @@ function ExpenseGroupsModel() {
     }
 
     self.expenseGroupSelected = function (data) {
-        // try calling exec notifyCallback passing selected items
-        if (notifyCallback) {
-            notifyCallback({ expenseGroup: data.ExpenseGroup, description: data.Description });
-        }
-        self.hideModal();
+        doModal.resolve({ expenseGroup: data.ExpenseGroup, description: data.Description });
     };
 
     self.showModal = function (callback) {
-        if (callback) {
-            notifyCallback = callback;
-        }
+
+        doModal = $.Deferred();
+        doModal.done(callback);
+        doModal.done(self.hideModal);
+
         var data = self.getUserExpenseGroups();
+
         $('#expenseGroupModal').modal();
     };
 
